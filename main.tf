@@ -3,7 +3,7 @@ terraform {
   required_version = "1.12.2"
   required_providers {
     gitlab = {
-      source = "gitlabhq/gitlab"
+      source  = "gitlabhq/gitlab"
       version = "18.8.2"
     }
   }
@@ -39,16 +39,16 @@ variable "admin_token" {
 
 //------------- Блок провайдера (provider) для настройки подключения к GitLab -------------
 provider "gitlab" {
-  token    = var.admin_token
+  token = var.admin_token
 }
 
 //------------- Блок ресурсов (resource) для создания новых ресурсов в GitLab -------------
 // Создание новой группы в GitLab с указанием родительской группы, имени, пути и описания
 resource "gitlab_group" "it_acron" {
-  parent_id         = data.gitlab_group.parent_group.id
-  name              = "the_best_team"
-  path              = "the_best_team"
-  description       = "The Awesome Team provides awesome tech that makes our company shine!"
+  parent_id   = data.gitlab_group.parent_group.id
+  name        = "the_best_team"
+  path        = "the_best_team"
+  description = "The Awesome Team provides awesome tech that makes our company shine!"
 }
 
 // Назначение пользователя с именем пользователя "ChefIvan" в качестве участника группы с уровнем доступа "maintainer"
@@ -60,18 +60,18 @@ resource "gitlab_group_membership" "team_lead" {
 
 // Назначение пользователей с именами пользователей "Maks", "Gleb" и "Daniil" в качестве участников группы с уровнем доступа "developer"
 resource "gitlab_group_membership" "team_member" {
-  for_each    = data.gitlab_user.team_member // Создание участника группы для каждого пользователя из списка team_member
+  for_each     = data.gitlab_user.team_member // Создание участника группы для каждого пользователя из списка team_member
   group_id     = gitlab_group.it_acron.id
   user_id      = each.value.id // Используем идентификатор пользователя из блока данных team_member
-  access_level = "developer" 
+  access_level = "developer"
 }
 
 // Создание нового проекта в GitLab с указанием имени, пути, описания и идентификатора группы
 resource "gitlab_project" "project" {
-  name         = "the_best_project"
-  path         = "the_best_project"
-  description  = "The Awesome Project provides awesome tech that makes our company shine!"
-  namespace_id = gitlab_group.it_acron.id
+  name                   = "the_best_project"
+  path                   = "the_best_project"
+  description            = "The Awesome Project provides awesome tech that makes our company shine!"
+  namespace_id           = gitlab_group.it_acron.id
   initialize_with_readme = true
   default_branch         = "main"
   merge_method           = "merge"
@@ -81,19 +81,19 @@ resource "gitlab_project" "project" {
 // пуши и ограничивающей доступ к пушу и слиянию только для участников с уровнем доступа "maintainer"
 resource "gitlab_branch_protection" "main_branch_protection" {
   project = gitlab_project.project.id
-  branch = "main"
+  branch  = "main"
 
-  push_access_level = "no one" // Уровень доступа для пуша в защищенную ветку
+  push_access_level  = "no one"     // Уровень доступа для пуша в защищенную ветку
   merge_access_level = "maintainer" // Уровень доступа для слияния в защищенную ветку
-  allow_force_push = false // Запрет форсированных пушей в защищенную ветку
+  allow_force_push   = false        // Запрет форсированных пушей в защищенную ветку
 }
 
 // Создание переменной проекта в GitLab с указанием ключа, значения и параметров защиты, маскировки и скрытия
 resource "gitlab_project_variable" "mySecretVariable" {
-  project = gitlab_project.project.id
-  key     = "MY_SECRET_VARIABLE"
-  value   = "my_secret_value" // Так не делаем, но в качестве примера оставим. В реальном проекте лучше использовать переменные окружения или секреты.
+  project   = gitlab_project.project.id
+  key       = "MY_SECRET_VARIABLE"
+  value     = "my_secret_value" // Так не делаем, но в качестве примера оставим. В реальном проекте лучше использовать переменные окружения или секреты.
   protected = true
   masked    = true
-  hidden   = true
+  hidden    = true
 }
