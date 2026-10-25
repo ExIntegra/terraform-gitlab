@@ -1,4 +1,4 @@
 variable "team_members_usernames" {
-  description = optional(string)
+  description = "GitLab usernames"
   type        = set(string)
 }

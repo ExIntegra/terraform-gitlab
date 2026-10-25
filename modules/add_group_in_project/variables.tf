@@ -1,6 +1,6 @@
-variable "group_id" {
+variable "share_group" {
   type = object({
-    project_id   = number
+    project_id   = string
     group_id     = number
     access_level = string
   })

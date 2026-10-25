@@ -1,5 +1,5 @@
 resource "gitlab_project_share_group" "qa_access" {
-  project      = var.group_id.project_id
-  group_id     = var.group_id.group_id
-  group_access = var.group_id.access_level
+  project      = var.share_group.project_id
+  group_id     = var.share_group.group_id
+  group_access = var.share_group.access_level
 }
