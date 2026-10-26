@@ -4,37 +4,9 @@ terraform {
   required_providers {
     gitlab = {
       source  = "gitlabhq/gitlab"
-      version = "18.8.2"
+      version = "19.4.1"
     }
   }
-}
-
-//------------- Блок данных (data) для получения информации о существующих ресурсах в GitLab -------------
-
-// Получение данных о родительской группе
-data "gitlab_group" "parent_group" {
-  full_path = "it-akron"
-}
-
-// Получение данных о пользователе с именем пользователя "ChefIvan"
-// Дальше эти данные можно использовать для назначения прав доступа и других операций в GitLab
-// В конкретном случае, мы используем данные о пользователе для назначения его в качестве
-// участника группы с уровнем доступа "maintainer"
-data "gitlab_user" "team_lead" {
-  username = "ChefIvan"
-}
-
-// Получение данных о пользователях с именами пользователей "Maks", "Gleb" и "Daniil"
-data "gitlab_user" "team_member" {
-  for_each = toset(["Maks", "Gleb", "Daniil"])
-  username = each.value
-}
-
-//------------- Блок переменных (variable) для хранения конфиденциальных данных -------------
-// Переменная для хранения токена адмнистратора (PAT token) с описанием и пометкой как конфиденциальная
-variable "admin_token" {
-  description = "Owner PAT token"
-  sensitive   = true
 }
 
 //------------- Блок провайдера (provider) для настройки подключения к GitLab -------------
@@ -42,58 +14,8 @@ provider "gitlab" {
   token = var.admin_token
 }
 
-//------------- Блок ресурсов (resource) для создания новых ресурсов в GitLab -------------
-// Создание новой группы в GitLab с указанием родительской группы, имени, пути и описания
-resource "gitlab_group" "it_acron" {
-  parent_id   = data.gitlab_group.parent_group.id
-  name        = "the_best_team"
-  path        = "the_best_team"
-  description = "The Awesome Team provides awesome tech that makes our company shine!"
-}
-
-// Назначение пользователя с именем пользователя "ChefIvan" в качестве участника группы с уровнем доступа "maintainer"
-resource "gitlab_group_membership" "team_lead" {
-  group_id     = gitlab_group.it_acron.id
-  user_id      = data.gitlab_user.team_lead.id
-  access_level = "maintainer"
-}
-
-// Назначение пользователей с именами пользователей "Maks", "Gleb" и "Daniil" в качестве участников группы с уровнем доступа "developer"
-resource "gitlab_group_membership" "team_member" {
-  for_each     = data.gitlab_user.team_member // Создание участника группы для каждого пользователя из списка team_member
-  group_id     = gitlab_group.it_acron.id
-  user_id      = each.value.id // Используем идентификатор пользователя из блока данных team_member
-  access_level = "developer"
-}
-
-// Создание нового проекта в GitLab с указанием имени, пути, описания и идентификатора группы
-resource "gitlab_project" "project" {
-  name                   = "the_best_project"
-  path                   = "the_best_project"
-  description            = "The Awesome Project provides awesome tech that makes our company shine!"
-  namespace_id           = gitlab_group.it_acron.id
-  initialize_with_readme = true
-  default_branch         = "main"
-  merge_method           = "merge"
-}
-
-// Создание защиты ветки "main" в проекте, запрещающей форсированные
-// пуши и ограничивающей доступ к пушу и слиянию только для участников с уровнем доступа "maintainer"
-resource "gitlab_branch_protection" "main_branch_protection" {
-  project = gitlab_project.project.id
-  branch  = "main"
-
-  push_access_level  = "no one"     // Уровень доступа для пуша в защищенную ветку
-  merge_access_level = "maintainer" // Уровень доступа для слияния в защищенную ветку
-  allow_force_push   = false        // Запрет форсированных пушей в защищенную ветку
-}
-
-// Создание переменной проекта в GitLab с указанием ключа, значения и параметров защиты, маскировки и скрытия
-resource "gitlab_project_variable" "mySecretVariable" {
-  project   = gitlab_project.project.id
-  key       = "MY_SECRET_VARIABLE"
-  value     = "my_secret_value" // Так не делаем, но в качестве примера оставим. В реальном проекте лучше использовать переменные окружения или секреты.
-  protected = true
-  masked    = true
-  hidden    = true
+variable "admin_token" {
+  description = "Токен администратора GitLab для аутентификации"
+  type        = string
+  sensitive   = true
 }
