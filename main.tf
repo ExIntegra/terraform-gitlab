@@ -19,3 +19,22 @@ variable "admin_token" {
   type        = string
   sensitive   = true
 }
+
+data "gitlab_group" "parent" {
+  full_path = var.parent_group_path
+}
+
+module "groups" {
+  source = "./modules/create_gitlab_group"
+  create_group = var.groups
+}
+
+module "users" {
+  source = "./modules/get_id_gitlab_users"
+  team_members_usernames = var.usernames
+}
+
+module "projects" {
+  source = "./modules/create_gitlab_project"
+  project = var.project
+}
