@@ -1,3 +1,6 @@
 output "group_id" {
-  value = gitlab_group.it_acron.id
+  value = {
+    for name, group in gitlab_group.new_group :
+    name => group.id
+  }
 }
