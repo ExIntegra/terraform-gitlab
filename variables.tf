@@ -3,11 +3,6 @@ variable "usernames" {
   type = set(string)
 }
 
-// для авторизации
-variable "gitlab_token" {
-  type = string
-}
-
 // получаем id заранее созданной родительской группы
 // для модуля create_gitlab_group
 // опционально?
