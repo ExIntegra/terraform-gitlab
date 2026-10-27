@@ -1,4 +1,4 @@
-variable "team_members_usernames" {
+variable "user_ids" {
   description = "GitLab usernames"
   type        = set(string)
 }

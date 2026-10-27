@@ -15,11 +15,6 @@ provider "gitlab" {
   token    = var.gitlab_token //передаем ТОЛЬКО через env
 }
 
-//получаем id родительской группы для создания дочерных элементов
-data "gitlab_group" "parent" {
-  full_path = var.parent_group_path
-}
-
 module "create-groups" {
   source       = "./modules/create_gitlab_group"
   create_group = var.create_group
@@ -31,12 +26,31 @@ module "projects" {
   for_each = var.project
 
   project = {
-    name                   = each.value.name
-    path                   = coalesce(each.value.path, each.key)
-    namespace_id           = module.groups.group_id[each.value.namespace]
-    description            = each.value.description
-    initialize_with_readme = each.value.initialize_with_readme
-    default_branch         = each.value.default_branch
-    merge_method           = each.value.merge_method
+    name                   = each.key
+    path                   = each.key
+    namespace_id           = module.create-groups.group_id[each.value.namespace_id]
+    description            = coalesce(try(each.value.description, null), "Проект ${each.key}")
+    initialize_with_readme = try(each.value.initialize_with_readme, false)
+    default_branch         = try(each.value.default_branch, "main")
+    merge_method           = try(each.value.merge_method, "merge")
+  }
+}
+
+module "get_user_ids" {
+  source   = "./modules/get_id_gitlab_users"
+  user_ids = var.usernames
+}
+
+module "add_members_in_group" {
+  source   = "./modules/add_members_in_group"
+  for_each = var.create_group
+
+  group_id = module.create-groups.group_id[each.key]
+  members = {
+    for name, role in var.members_group[each.key] :
+    name => {
+      user_id      = data.gitlab_user.user_ids[name].user_id
+      access_level = role
+    }
   }
 }

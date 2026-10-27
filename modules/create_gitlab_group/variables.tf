@@ -1,10 +1,11 @@
 variable "create_group" {
   type = map(object({
-    name        = string
-    path        = string
-    description = string
+    description      = optional(string)
+    visibility_level = optional(string)
   }))
 }
+
+
 
 variable "parent_id" {
   type = number
