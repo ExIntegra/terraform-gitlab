@@ -12,7 +12,6 @@ terraform {
 
 provider "gitlab" {
   base_url = "https://repo.vnov.acron.ru/"
-  token    = var.gitlab_token //передаем ТОЛЬКО через env
 }
 
 module "create-groups" {
