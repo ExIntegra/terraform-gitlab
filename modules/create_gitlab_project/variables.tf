@@ -1,14 +1,34 @@
+variable "gitlab_url" {
+  type = string
+}
+
+variable "import_token" {
+  type      = string
+  sensitive = true
+}
+
+variable "temp_path" {
+  type    = string
+  default = "terraform-acron-web/templates"
+}
+
+variable "temp_name_repo" {
+  description = "Список доступных шаблонов для проверки имён"
+  type        = list(string)
+  default     = []
+}
+
 variable "project" {
+  description = "Параметры создаваемого проекта"
   type = object({
-    name                   = string
-    path                   = string
-    namespace_id           = string //id группы
-    description            = optional(string, "")
-    initialize_with_readme = optional(bool)
-    default_branch         = optional(string)
-    merge_method           = optional(string)
-    use_custom_template    = optional(string, false)
-    template_project_id    = optional(number)
-    visibility_level       = optional(string, "public")
+    name                = string
+    path                = string
+    description         = optional(string, "")
+    namespace_id        = string
+    default_branch      = optional(string, "main")
+    merge_method        = optional(string, "merge")
+    visibility_level    = optional(string, "private")
+    use_custom_template = optional(bool, false)
+    temp_name           = optional(string)
   })
 }
