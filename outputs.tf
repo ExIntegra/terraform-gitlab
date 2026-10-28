@@ -12,9 +12,3 @@ output "project_ids" {
 output "user_ids" {
   value = module.get_user_ids
 }
-
-output "gitlab_ids" {
-  value = {
-    for name, user in data.gitlab_user.user_ids : name => user.user_id
-  }
-}
