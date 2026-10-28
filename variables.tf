@@ -8,6 +8,15 @@ variable "temp_name_repo" {
   type = set(string)
 }
 
+variable "temp_path" {
+  type = string
+}
+
+variable "token" {
+  type      = string
+  sensitive = true
+}
+
 // получаем id заранее созданной родительской группы
 // для модуля create_gitlab_group
 // опционально?
@@ -28,14 +37,15 @@ variable "members_group" {
 // используется в модуле create_gitlab_project
 variable "project" {
   type = map(object({
+    // ???
     namespace_id           = string
     description            = optional(string)
-    initialize_with_readme = optional(bool)
-    default_branch         = optional(string)
-    merge_method           = optional(string)
-    use_custom_template    = optional(string)
-    template_project_name  = optional(string)
-    visibility_level       = optional(string)
+    initialize_with_readme = optional(bool, true)
+    default_branch         = optional(string, "main")
+    merge_method           = optional(string, "merge")
+    use_custom_template    = optional(bool, false)
+    temp_name              = optional(string)
+    visibility_level       = optional(string, "private")
   }))
 }
 

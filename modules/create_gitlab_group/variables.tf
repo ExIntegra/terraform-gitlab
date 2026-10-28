@@ -5,8 +5,6 @@ variable "create_group" {
   }))
 }
 
-
-
 variable "parent_id" {
   type = number
 }

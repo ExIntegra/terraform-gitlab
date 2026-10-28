@@ -12,6 +12,7 @@ terraform {
 
 provider "gitlab" {
   base_url = "https://repo.vnov.acron.ru/"
+  token    = ""
   //token = через переменную окружения GITLAB_TOKEN
 }
 
@@ -21,29 +22,25 @@ module "create-groups" {
   parent_id    = data.gitlab_group.parent.group_id
 }
 
+
 module "projects" {
-  source   = "./modules/create_gitlab_project"
-  for_each = var.project
+  source       = "./modules/create_gitlab_project"
+  for_each     = var.project
+  gitlab_url   = "https://repo.vnov.acron.ru"
+  temp_path    = "terraform-acron-web/templates"
+  import_token = var.token
 
   project = {
-    name         = each.key
-    path         = each.key
-    namespace_id = module.create-groups.group_id[each.value.namespace_id]
-    //попытается извлечь данные через try, если нет, то null
-    //coalesce ловит null и выдает шаблон в переменную description
-    description            = coalesce(try(each.value.description, null), "Проект ${each.key}")
-    initialize_with_readme = try(each.value.initialize_with_readme, false)
-    default_branch         = try(each.value.default_branch, "main")
-    merge_method           = try(each.value.merge_method, "merge")
-    use_custom_template    = try(each.value.use_custom_template, false)
-    template_project_id    = try(each.value.template_project_id, null)
-    visibility_level       = try(each.key.value.visibility_level, "public")
+    name                = each.key
+    path                = each.key
+    namespace_id        = module.create-groups.group_id[each.value.namespace_id]
+    description         = coalesce(each.value.description, "Проект ${each.key}")
+    default_branch      = each.value.default_branch
+    merge_method        = each.value.merge_method
+    use_custom_template = each.value.use_custom_template
+    temp_name           = each.value.temp_name
+    visibility_level    = each.value.visibility_level
   }
-}
-
-data "gitlab_project" "templates" {
-  for_each = toset(var.temp_name_repo)
-  name     = each.value
 }
 
 module "get_user_ids" {
@@ -60,7 +57,7 @@ module "add_members_in_group" {
     //если не находим в map участников, то отдаем пустой список {}
     for name, role in lookup(var.members_group, each.key, {}) :
     name => {
-      user_id      = module.get_user_ids[name].user_id //data.gitlab_user.user_ids[name].user_id
+      user_id      = module.get_user_ids.user.ids[name]
       access_level = role
     }
   }
