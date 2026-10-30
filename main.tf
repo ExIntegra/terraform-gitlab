@@ -12,7 +12,6 @@ terraform {
 
 provider "gitlab" {
   base_url = "https://repo.vnov.acron.ru/"
-  token    = ""
   //token = через переменную окружения GITLAB_TOKEN
 }
 
@@ -24,22 +23,22 @@ module "create-groups" {
 
 
 module "projects" {
-  source       = "./modules/create_gitlab_project"
-  for_each     = var.project
-  gitlab_url   = "https://repo.vnov.acron.ru"
-  temp_path    = "terraform-acron-web/templates"
-  import_token = var.token
+  source   = "./modules/create_gitlab_project"
+  for_each = var.project
+  # gitlab_url   = "https://repo.vnov.acron.ru"
+  # temp_path    = "terraform-acron-web/templates"
+  # import_token = var.token
 
   project = {
-    name                = each.key
-    path                = each.key
-    namespace_id        = module.create-groups.group_id[each.value.namespace_id]
-    description         = coalesce(each.value.description, "Проект ${each.key}")
-    default_branch      = each.value.default_branch
-    merge_method        = each.value.merge_method
-    use_custom_template = each.value.use_custom_template
-    temp_name           = each.value.temp_name
-    visibility_level    = each.value.visibility_level
+    name           = each.key
+    path           = each.key
+    namespace_id   = module.create-groups.group_id[each.value.namespace_id]
+    description    = coalesce(each.value.description, "Проект ${each.key}")
+    default_branch = each.value.default_branch
+    merge_method   = each.value.merge_method
+    # use_custom_template = each.value.use_custom_template
+    temp_name        = each.value.temp_name
+    visibility_level = each.value.visibility_level
   }
 }
 
@@ -61,4 +60,23 @@ module "add_members_in_group" {
       access_level = role
     }
   }
+}
+
+data "gitlab_project_variables" "all" {
+  project = "acron-web/client/acron-web-client-shell"
+}
+
+output "all_variables_gitlab" {
+  value = data.gitlab_project_variables.all.variables
+}
+
+# resource "gitlab_project_variable" "variable" {
+#   project = "terraform-gitlab-test/existing_project"
+#   key     = "variable_5"
+#   value   = "15"
+# }
+
+import {
+  to = gitlab_project.monitoring
+  id = "terraform-gitlab-test/existing_project"
 }
