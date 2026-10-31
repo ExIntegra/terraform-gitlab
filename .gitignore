@@ -25,3 +25,6 @@ override.tf.json
 # Local Terraform CLI configuration
 .terraformrc
 terraform.rc
+# Debug logs
+plan_log.txt
+*.log
