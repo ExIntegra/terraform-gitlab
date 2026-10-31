@@ -4,5 +4,5 @@ resource "gitlab_group" "new_group" {
   name             = each.key
   path             = each.key
   description      = each.value.description
-  visibility_level = coalesce(try(each.value.visibility_level, null), "public")
+  visibility_level = each.value.visibility_level
 }
