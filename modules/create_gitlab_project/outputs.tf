@@ -1,3 +1,3 @@
 output "project_id" {
-  value = gitlab_project.project.id
+  value = { for key, project in gitlab_project.project : key => project.id }
 }

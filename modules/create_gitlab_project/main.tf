@@ -1,10 +1,21 @@
+locals {
+  projects = { for project in flatten([
+    for group_name, group in var.infrastructure : [
+      for project_name, project in group.projects : merge(project, {
+        group_name = group_name
+        name       = project_name
+      })
+    ]
+  ]) : "${project.group_name}/${project.name}" => project }
+}
 resource "gitlab_project" "project" {
-  name                   = var.project.name
-  path                   = var.project.path
-  description            = var.project.description
-  group_id               = var.project.group_id
-  default_branch         = var.project.default_branch
-  merge_method           = var.project.merge_method
-  visibility_level       = var.project.visibility_level
-  initialize_with_readme = var.project.initialize_with_readme
+  for_each               = local.projects
+  name                   = each.value.name
+  path                   = each.value.name
+  namespace_id           = var.group_ids[each.value.group_name]
+  description            = each.value.description
+  visibility_level       = each.value.visibility_level
+  initialize_with_readme = each.value.initialize_with_readme
+  default_branch         = each.value.initialize_with_readme ? each.value.default_branch : null
+  merge_method           = each.value.merge_method
 }

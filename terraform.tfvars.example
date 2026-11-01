@@ -1,0 +1,15 @@
+infrastructure = {
+  backend = {
+    parent_group = "company"
+    members = { ivan = "developer" }
+    projects = {
+      api = { description = "Backend API" }
+      database = { description = "Database" }
+    }
+  }
+  frontend = {
+    projects = {
+      api = { description = "Frontend API" }
+    }
+  }
+}
