@@ -16,9 +16,3 @@ terraform plan
 ```
 
 После проверки плана можно выполнить terraform apply. Если initialize_with_readme = false, default_branch не передаётся: ветку нужно создать отдельно.
-
-## Переход с прежней конфигурации
-
-Интерфейсы create_group/project/parent_group_path заменены на infrastructure, а адреса ресурсов изменились: module.groups.gitlab_group.new_group["backend"], module.projects.gitlab_project.project["backend/api"], module.members.gitlab_group_membership.members["backend/ivan"]. Для существующего state сначала сопоставьте прежние адреса через terraform state list и выполните подходящие terraform state mv или import. Универсальная миграция не задана, поскольку прежняя корневая конфигурация содержит несогласованные ссылки. Не применяйте план с неожиданным удалением существующих ресурсов.
-
-Выходы: group_ids и project_ids. Дополнительные прежние вспомогательные модули сохранены, но корневой модуль их не вызывает.

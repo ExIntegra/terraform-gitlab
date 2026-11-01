@@ -1,15 +1,87 @@
 infrastructure = {
   backend = {
+    # Группа backend будет создана внутри company:
+    # company/backend
     parent_group = "company"
-    members = { ivan = "developer" }
+
+    description      = "Команда backend"
+    visibility_level = "private"
+
+    # Участники группы backend.
+    # Они наследуют доступ ко всем проектам этой группы.
+    members = {
+      ivan   = "maintainer"
+      petr   = "developer"
+      anna   = "reporter"
+    }
+
     projects = {
-      api = { description = "Backend API" }
-      database = { description = "Database" }
+      # Проект company/backend/api
+      api = {
+        description      = "Сервис Backend API"
+        visibility_level = "private"
+
+        # Создать репозиторий с начальным README.
+        initialize_with_readme = true
+
+        # Основная ветка проекта.
+        default_branch = "main"
+
+        # Слияние через merge commit.
+        merge_method = "merge"
+      }
+
+      # Проект company/backend/database
+      database = {
+        description      = "Миграции и схема базы данных"
+        visibility_level = "private"
+
+        initialize_with_readme = true
+        default_branch         = "main"
+
+        # Только fast-forward слияние.
+        merge_method = "ff"
+      }
     }
   }
+
   frontend = {
+    # Группа company/frontend
+    parent_group = "company"
+
+    description      = "Команда frontend"
+    visibility_level = "private"
+
+    members = {
+      olga   = "maintainer"
+      sergey = "developer"
+
+      # Один пользователь может состоять в нескольких группах.
+      anna = "reporter"
+    }
+
     projects = {
-      api = { description = "Frontend API" }
+      # Проект company/frontend/website
+      website = {
+        description      = "Веб-интерфейс приложения"
+        visibility_level = "private"
+
+        initialize_with_readme = true
+        default_branch         = "main"
+        merge_method           = "merge"
+      }
+
+      # Пустой репозиторий company/frontend/design-system
+      design-system = {
+        description      = "Общие компоненты интерфейса"
+        visibility_level = "private"
+
+        initialize_with_readme = false
+
+        # default_branch не указываем:
+        # репозиторий пока пустой, ветку создадим первым push.
+        merge_method = "merge"
+      }
     }
   }
 }
