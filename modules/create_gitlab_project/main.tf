@@ -1,13 +1,16 @@
 locals {
-  projects = { for project in flatten([
+  all_projects = flatten([
     for group_name, group in var.infrastructure : [
       for project_name, project in group.projects : merge(project, {
         group_name = group_name
         name       = project_name
       })
     ]
-  ]) : "${project.group_name}/${project.name}" => project }
+  ])
+
+  projects = { for p in local.all_projects : "${p.group_name}/${p.name}" => p }
 }
+
 resource "gitlab_project" "project" {
   for_each               = local.projects
   name                   = each.value.name

@@ -1,5 +1,9 @@
 data "gitlab_group" "parent" {
-  for_each  = toset([for group in values(var.create_group) : group.parent_group if group.parent_group != null])
+  //итерируем по group в create_group и берем parent_group если он не null
+  // values забираем значение, но не ключ из map
+  for_each = toset([for group in values(var.create_group) :
+    group.parent_group
+  if group.parent_group != null])
   full_path = each.value
 }
 resource "gitlab_group" "new_group" {

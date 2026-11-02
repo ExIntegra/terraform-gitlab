@@ -1,5 +1,11 @@
 # Terraform working directory
 .terraform/
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars
+state.json
+
 
 # Terraform state files
 *.tfstate
@@ -29,3 +35,5 @@ terraform.rc
 # Debug logs
 plan_log.txt
 *.log
+
+

@@ -9,6 +9,7 @@ variable "infrastructure" {
     })), {})
   }))
   nullable = false
+
   validation {
     condition = alltrue(flatten([
       for group in values(var.infrastructure) : [
